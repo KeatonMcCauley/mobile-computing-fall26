@@ -13,6 +13,7 @@ class Student {
   }
 }
 void main(){
+  //not part of assignment checking to be sure its running correctly
   Student student = Student("Keaton",100,[100.0, 83.5, 95.2] );
   print(student.calculateGPA());
 }
