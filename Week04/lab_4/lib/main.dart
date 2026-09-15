@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
                 height: 140,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: [_card('Weight Lifting'),                                 _card('Breakfast'),_card('Mobile                                     Computing'),_card('Writing                                           Class'),_card('Practice')]
+                  children: [_card('Weight Lifting'),_card('Breakfast'),_card('Mobile Computing'),_card('Writing Class'),_card('Practice')]
                 ),
               ),
               Expanded(
@@ -66,12 +66,3 @@ class MyApp extends StatelessWidget {
     child: Center(child: Text(label)),
   );
 }
-
- 
-
-
-
-  
-
-
-
