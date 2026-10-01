@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             TextField(controller: _nameController),
+            
             ElevatedButton(
               onPressed: () async {
                 await saveName(_nameController.text);
@@ -71,6 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 }
 
