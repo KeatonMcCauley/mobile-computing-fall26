@@ -45,7 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            TextField(controller: _nameController),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Enter your name',)
+              
+              ),
             
             ElevatedButton(
               onPressed: () async {
