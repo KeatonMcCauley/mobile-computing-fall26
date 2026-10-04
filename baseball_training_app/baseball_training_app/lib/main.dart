@@ -63,15 +63,17 @@ class BaseballHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'APPROACH BASEBALL',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_outline),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
           ),
         ],
       ),
@@ -83,7 +85,6 @@ class BaseballHomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // Header
               const Text(
                 'BASEBALL TRAINING',
@@ -154,10 +155,7 @@ class BaseballHomePage extends StatelessWidget {
 
                         leading: CircleAvatar(
                           backgroundColor: Colors.black,
-                          child: Icon(
-                            _getIcon(index),
-                            color: Colors.white,
-                          ),
+                          child: Icon(_getIcon(index), color: Colors.white),
                         ),
 
                         title: Text(
@@ -171,9 +169,7 @@ class BaseballHomePage extends StatelessWidget {
 
                         subtitle: Text(
                           descriptions[index],
-                          style: const TextStyle(
-                            color: Colors.black54,
-                          ),
+                          style: const TextStyle(color: Colors.black54),
                         ),
 
                         trailing: const Icon(
@@ -183,7 +179,14 @@ class BaseballHomePage extends StatelessWidget {
                         ),
 
                         onTap: () {
-                          // Add navigation here later.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TrainingDetailsPage(
+                                trainingType: itemNames[index],
+                              ),
+                            ),
+                          );
                         },
                       ),
                     );
@@ -214,11 +217,7 @@ class BaseballHomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.sports_baseball,
-              color: Colors.black,
-              size: 38,
-            ),
+            const Icon(Icons.sports_baseball, color: Colors.black, size: 38),
 
             const SizedBox(height: 10),
 
@@ -253,5 +252,299 @@ class BaseballHomePage extends StatelessWidget {
       default:
         return Icons.sports_baseball;
     }
+  }
+}
+
+class TrainingDetailsPage extends StatelessWidget {
+  final String trainingType;
+
+  const TrainingDetailsPage({super.key, required this.trainingType});
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, List<String>> exercises = {
+      'Weightlifting': ['Squats', 'Bench Press', 'Deadlifts', 'Pull-Ups'],
+      'Mobility Training': [
+        'Hip Mobility',
+        'Shoulder Mobility',
+        'Dynamic Stretching',
+        'Core Mobility',
+      ],
+      'Hitting Drills': [
+        'Tee Work',
+        'Soft Toss',
+        'Front Toss',
+        'Timing Drills',
+      ],
+      'Pitching Drills': [
+        'Long Toss',
+        'Balance Drill',
+        'Stride Drill',
+        'Pitching Mechanics',
+      ],
+    };
+
+    final List<String> currentExercises = exercises[trainingType] ?? [];
+
+    return Scaffold(
+      appBar: AppBar(title: Text(trainingType)),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              trainingType.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'Training Program',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'Select an exercise or drill to learn more.',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+
+            const SizedBox(height: 25),
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: currentExercises.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    color: Colors.white,
+                    margin: const EdgeInsets.only(bottom: 12),
+
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.black,
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
+                      title: Text(
+                        currentExercises[index],
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black,
+                        size: 16,
+                      ),
+
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ExerciseDetailsPage(
+                              trainingType: trainingType,
+                              exerciseName: currentExercises[index],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ExerciseDetailsPage extends StatelessWidget {
+  final String trainingType;
+  final String exerciseName;
+
+  const ExerciseDetailsPage({
+    super.key,
+    required this.trainingType,
+    required this.exerciseName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(exerciseName)),
+
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.sports_baseball, size: 70, color: Colors.white),
+
+            const SizedBox(height: 25),
+
+            Text(
+              trainingType.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              exerciseName,
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 25),
+
+            const Text(
+              'ABOUT THIS DRILL',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              'Practice $exerciseName to improve your '
+              'baseball performance. Focus on proper '
+              'technique, controlled movement, and consistency.',
+              style: const TextStyle(fontSize: 17, height: 1.5),
+            ),
+
+            const SizedBox(height: 30),
+
+            Container(
+              padding: const EdgeInsets.all(18),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+
+              child: const Text(
+                'Recommended: 3 sets × 10 reps',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('My Profile')),
+
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, color: Colors.black, size: 55),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Baseball Player',
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 5),
+
+            const Text(
+              'Approach Baseball Member',
+              style: TextStyle(color: Colors.grey),
+            ),
+
+            const SizedBox(height: 35),
+
+            _profileCard(Icons.fitness_center, 'Workouts Completed', '12'),
+
+            _profileCard(Icons.sports_baseball, 'Training Focus', 'Hitting'),
+
+            _profileCard(Icons.calendar_month, 'Lessons', '2 Upcoming'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _profileCard(IconData icon, String title, String value) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+
+      padding: const EdgeInsets.all(18),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.black, size: 30),
+
+          const SizedBox(width: 15),
+
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.black54,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
