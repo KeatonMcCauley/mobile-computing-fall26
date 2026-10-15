@@ -430,9 +430,7 @@ class ExerciseDetailsPage extends StatelessWidget {
             const SizedBox(height: 10),
 
             Text(
-              'Practice $exerciseName to improve your '
-              'baseball performance. Focus on proper '
-              'technique, controlled movement, and consistency.',
+              'Review the $exerciseName video below',
               style: const TextStyle(fontSize: 17, height: 1.5),
             ),
 
@@ -497,6 +495,7 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 35),
 
+            //tentative profile statistice, will be connected later
             _profileCard(Icons.fitness_center, 'Workouts Completed', '12'),
 
             _profileCard(Icons.sports_baseball, 'Training Focus', 'Hitting'),
