@@ -688,9 +688,7 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-// ======================================================
-// JSONPLACEHOLDER API PAGE
-// ======================================================
+
 
 class ApiPage extends StatefulWidget {
   const ApiPage({super.key});
