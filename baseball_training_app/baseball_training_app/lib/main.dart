@@ -1,10 +1,18 @@
-
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppProvider(),
@@ -41,24 +49,14 @@ class AppProvider extends ChangeNotifier {
   ];
 
   final Map<String, List<String>> exercises = {
-    'Weightlifting': [
-      'Squats',
-      'Bench Press',
-      'Deadlifts',
-      'Pull-Ups',
-    ],
+    'Weightlifting': ['Squats', 'Bench Press', 'Deadlifts', 'Pull-Ups'],
     'Mobility Training': [
       'Hip Mobility',
       'Shoulder Mobility',
       'Dynamic Stretching',
       'Core Mobility',
     ],
-    'Hitting Drills': [
-      'Tee Work',
-      'Soft Toss',
-      'Front Toss',
-      'Timing Drills',
-    ],
+    'Hitting Drills': ['Tee Work', 'Soft Toss', 'Front Toss', 'Timing Drills'],
     'Pitching Drills': [
       'Long Toss',
       'Balance Drill',
@@ -151,12 +149,13 @@ class ApproachBaseballApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: const BaseballHomePage(),
+      home: const AuthGate(),
     );
   }
 }
 
 // HOME PAGE
+
 
 class BaseballHomePage extends StatelessWidget {
   const BaseballHomePage({super.key});
@@ -175,8 +174,10 @@ class BaseballHomePage extends StatelessWidget {
           ),
         ),
         actions: [
+          // PROFILE BUTTON
           IconButton(
             icon: const Icon(Icons.person_outline),
+            tooltip: 'My Profile',
             onPressed: () {
               Navigator.push(
                 context,
@@ -186,8 +187,18 @@ class BaseballHomePage extends StatelessWidget {
               );
             },
           ),
+
+          // LOGOUT BUTTON
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Log out',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
         ],
       ),
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -230,7 +241,8 @@ class BaseballHomePage extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(14),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
                           children: [
                             const Icon(
                               Icons.sports_baseball,
@@ -380,9 +392,7 @@ class TrainingDetailsPage extends StatelessWidget {
     final provider = context.watch<AppProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(provider.selectedTraining),
-      ),
+      appBar: AppBar(title: Text(provider.selectedTraining)),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -399,10 +409,7 @@ class TrainingDetailsPage extends StatelessWidget {
             const SizedBox(height: 10),
             const Text(
               'Training Program',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -415,8 +422,7 @@ class TrainingDetailsPage extends StatelessWidget {
               child: ListView.builder(
                 itemCount: provider.currentExercises.length,
                 itemBuilder: (context, index) {
-                  final exercise =
-                      provider.currentExercises[index];
+                  final exercise = provider.currentExercises[index];
 
                   return Card(
                     color: Colors.white,
@@ -445,15 +451,12 @@ class TrainingDetailsPage extends StatelessWidget {
                         size: 16,
                       ),
                       onTap: () {
-                        context.read<AppProvider>().selectExercise(
-                          exercise,
-                        );
+                        context.read<AppProvider>().selectExercise(exercise);
 
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                const ExerciseDetailsPage(),
+                            builder: (_) => const ExerciseDetailsPage(),
                           ),
                         );
                       },
@@ -469,8 +472,6 @@ class TrainingDetailsPage extends StatelessWidget {
   }
 }
 
-
-
 class ExerciseDetailsPage extends StatelessWidget {
   const ExerciseDetailsPage({super.key});
 
@@ -479,19 +480,13 @@ class ExerciseDetailsPage extends StatelessWidget {
     final provider = context.watch<AppProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(provider.selectedExercise),
-      ),
+      appBar: AppBar(title: Text(provider.selectedExercise)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.sports_baseball,
-              size: 70,
-              color: Colors.white,
-            ),
+            const Icon(Icons.sports_baseball, size: 70, color: Colors.white),
             const SizedBox(height: 25),
 
             Text(
@@ -506,10 +501,7 @@ class ExerciseDetailsPage extends StatelessWidget {
 
             Text(
               provider.selectedExercise,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 25),
 
@@ -525,10 +517,7 @@ class ExerciseDetailsPage extends StatelessWidget {
 
             Text(
               'Review the ${provider.selectedExercise} video below.',
-              style: const TextStyle(
-                fontSize: 17,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 17, height: 1.5),
             ),
             const SizedBox(height: 30),
 
@@ -562,9 +551,7 @@ class ExerciseDetailsPage extends StatelessWidget {
                   context.read<AppProvider>().completeWorkout();
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Workout completed!'),
-                    ),
+                    const SnackBar(content: Text('Workout completed!')),
                   );
                 },
                 child: const Text('COMPLETE WORKOUT'),
@@ -577,8 +564,6 @@ class ExerciseDetailsPage extends StatelessWidget {
   }
 }
 
-
-
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -587,9 +572,7 @@ class ProfilePage extends StatelessWidget {
     final provider = context.watch<AppProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-      ),
+      appBar: AppBar(title: const Text('My Profile')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -597,20 +580,13 @@ class ProfilePage extends StatelessWidget {
             const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.white,
-              child: Icon(
-                Icons.person,
-                color: Colors.black,
-                size: 55,
-              ),
+              child: Icon(Icons.person, color: Colors.black, size: 55),
             ),
             const SizedBox(height: 20),
 
             const Text(
               'Baseball Player',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
 
@@ -632,22 +608,14 @@ class ProfilePage extends StatelessWidget {
               provider.trainingFocus,
             ),
 
-            _profileCard(
-              Icons.calendar_month,
-              'Lessons',
-              provider.lessons,
-            ),
+            _profileCard(Icons.calendar_month, 'Lessons', provider.lessons),
           ],
         ),
       ),
     );
   }
 
-  Widget _profileCard(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+  Widget _profileCard(IconData icon, String title, String value) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(18),
@@ -657,11 +625,7 @@ class ProfilePage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: Colors.black,
-            size: 30,
-          ),
+          Icon(icon, color: Colors.black, size: 30),
           const SizedBox(width: 15),
 
           Expanded(
@@ -688,8 +652,6 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-
-
 class ApiPage extends StatefulWidget {
   const ApiPage({super.key});
 
@@ -698,7 +660,6 @@ class ApiPage extends StatefulWidget {
 }
 
 class _ApiPageState extends State<ApiPage> {
-
   @override
   void initState() {
     super.initState();
@@ -715,49 +676,36 @@ class _ApiPageState extends State<ApiPage> {
     final provider = context.watch<AppProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('API POSTS'),
-      ),
+      appBar: AppBar(title: const Text('API POSTS')),
       body: _buildBody(provider),
     );
   }
 
   Widget _buildBody(AppProvider provider) {
-
     // LOADING STATE
 
     if (provider.isLoading && provider.posts.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(
-          color: Colors.white,
-        ),
+        child: CircularProgressIndicator(color: Colors.white),
       );
     }
 
     // ERROR STATE
 
-    if (provider.errorMessage != null &&
-        provider.posts.isEmpty) {
+    if (provider.errorMessage != null && provider.posts.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(25),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 60,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 60, color: Colors.red),
               const SizedBox(height: 15),
 
               Text(
                 provider.errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 17),
               ),
 
               const SizedBox(height: 20),
@@ -792,10 +740,7 @@ class _ApiPageState extends State<ApiPage> {
             Center(
               child: Text(
                 'No posts available.',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: Colors.grey, fontSize: 18),
               ),
             ),
           ],
@@ -861,16 +806,273 @@ class _ApiPageState extends State<ApiPage> {
 
                   Text(
                     'User ID: ${post['userId']}',
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
                   ),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+//firebase
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasData) {
+          return const BaseballHomePage();
+        }
+        return const LoginScreen();
+      },
+    );
+  }
+}
+
+
+//login screen
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  String _error = '';
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+ Future<void> _submit(bool isSignUp) async {
+  final auth = FirebaseAuth.instance;
+
+  final email = _email.text.trim();
+  final password = _password.text;
+
+  if (email.isEmpty || password.isEmpty) {
+    setState(() {
+      _error = 'Please enter your email and password.';
+    });
+    return;
+  }
+
+  setState(() {
+    _error = '';
+  });
+
+  try {
+    if (isSignUp) {
+      await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } else {
+      await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    }
+  } on FirebaseAuthException catch (e) {
+    setState(() {
+      _error = e.message ?? 'Something went wrong.';
+    });
+  } catch (e) {
+    setState(() {
+      _error = 'Unable to connect. Please try again.';
+    });
+  }
+}
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Approach Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: _email,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: _password,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Password (6+)'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => _submit(false),
+              child: const Text('Log in'),
+            ),
+            OutlinedButton(
+              onPressed: () => _submit(true),
+              child: const Text('Sign up'),
+            ),
+            Text(_error, style: const TextStyle(color: Colors.red)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//notes screen
+
+class NotesScreen extends StatefulWidget {
+  const NotesScreen({super.key});
+
+  @override
+  State<NotesScreen> createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends State<NotesScreen> {
+  final _controller = TextEditingController();
+
+  late final CollectionReference _notes;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final user = FirebaseAuth.instance.currentUser!;
+
+    _notes = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('notes');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _addNote() async {
+    final text = _controller.text.trim();
+
+    if (text.isEmpty) return;
+
+    try {
+      await _notes.add({
+        'text': text,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      _controller.clear();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to save note: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Notes'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Log out',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
+      ),
+
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      labelText: 'New note',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addNote,
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _notes
+                  .orderBy('createdAt')
+                  .snapshots(),
+
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                }
+
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                final docs = snapshot.data!.docs;
+
+                if (docs.isEmpty) {
+                  return const Center(
+                    child: Text('No notes yet.'),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final note = docs[index];
+
+                    return ListTile(
+                      title: Text(note['text']),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          await note.reference.delete();
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
